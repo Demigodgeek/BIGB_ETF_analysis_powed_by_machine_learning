@@ -2,11 +2,6 @@ import yahoo_fin.stock_info as si
 import pandas as pd
 from datetime import datetime, timedelta
 import numpy as np
-
-import yahoo_fin.stock_info as si
-import pandas as pd
-from datetime import datetime, timedelta
-import numpy as np
 import logging
 
 def get_bigb_data():
