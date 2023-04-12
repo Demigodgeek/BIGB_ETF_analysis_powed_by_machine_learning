@@ -35,7 +35,13 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 # Import the required data from the data_plugin module
-from data_plugin import bigb_annual_return, bigb_annual_volatility, benchmark_data, bank_etf_data
+from data_plugin import get_bigb_data, get_benchmark_cluster_data, get_bank_etf_cluster_data
+bigb_df, bigb_daily_returns, bigb_annual_return, bigb_annual_volatility = get_bigb_data()
+
+# Now get the benchmark_data and bank_etf_data using the imported functions
+benchmark_data = get_benchmark_cluster_data()
+bank_etf_data = get_bank_etf_cluster_data()
+
 
 # Define the find_bigb_cluster function
 # Perform clustering and find the appropriate cluster for BIGB
