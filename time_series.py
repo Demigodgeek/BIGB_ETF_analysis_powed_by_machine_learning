@@ -47,29 +47,38 @@ from math import sqrt
 # Import the required data from the data_plugin module
 from data_plugin import bigb_data, train_data, test_data
 
-# Define the plot_quarterly_heatmap function
-def plot_quarterly_heatmap(data):
-    quarterly_close_prices = data.resample('Q').mean()
+def plot_quarterly_heatmap(quarterly_close_prices):
+    quarterly_close_prices = quarterly_close_prices.resample('Q').mean()
     quarterly_close_prices['Year'] = quarterly_close_prices.index.year
     quarterly_close_prices['Quarter'] = quarterly_close_prices.index.quarter
-    quarterly_close_prices = quarterly_close_prices.reset_index().melt(id_vars=['Year', 'Quarter'], 
-                                                                       value_vars=['close'], 
-                                                                       value_name='Close')
-
-    heatmap = hv.HeatMap(quarterly_close_prices, 
-                         kdims=['Year', 'Quarter'], 
-                         vdims=['Close']).opts(cmap="coolwarm", 
-                                               colorbar=True, 
-                                               toolbar="above", 
-                                               width=800, 
-                                               height=400,
-                                               title="BIGB Quarterly Close Price per Year Heatmap", 
-                                               xrotation=90)
     
+    heatmap = quarterly_close_prices.hvplot.heatmap(
+        x="Year",
+        y="Quarter",
+        C="close",
+        cmap="blues",
+        width=800,
+        height=400,
+        colorbar=True,
+        title="BIGB Quarterly Close Price per Year Heatmap"
+    )
+
     # Save the plot as a PNG file in the "images" folder
     hv.save(heatmap, file_path, fmt='png')
     
     return heatmap
+
+# Plot the heatmap for BIGB data
+file_path = 'images/heatmap.png'
+heatmap = plot_quarterly_heatmap(bigb_data)
+heatmap
+
+
+# Plot the heatmap for BIGB data
+file_path = 'images/heatmap.png'
+heatmap = plot_quarterly_heatmap(bigb_data)
+heatmap
+
 
 # Define the train_prophet_model function
 hv.extension('bokeh')
@@ -95,59 +104,32 @@ prophet_model.fit(train_data)
 # Make predictions using the test data
 prophet_future = prophet_model.make_future_dataframe(periods=365, freq='D')
 prophet_forecast = prophet_model.predict(prophet_future)
-# Define the predict_prophet function
-# ...
+# Plot the Prophet forecast
+file_path = 'images/prophet_predicted_plot.png'
+prophet_predicted_plot = plot(prophet_model, prophet_forecast)
 
-# Fit the Prophet model using the train data
-prophet_model = train_prophet_model(train_data)
+# SARIMA
 
-# Make predictions using the test data
-prophet_forecast = predict_prophet(prophet_model, periods=365, freq='D')
-
-# Define the train_sarima_model function
 # Fit the SARIMA model using the train data
 sarima_model = SARIMAX(train_data['y'], order=(1, 1, 1), seasonal_order=(1, 1, 1, 12))
 sarima_results = sarima_model.fit()
 
-# Find the row numbers for the start and end dates
-start_row = test_data.index[0]
-end_row = test_data.index[-1]
-
 # Make predictions using the test data
-sarima_predicted_close = sarima_results.get_prediction(start=start_row, end=end_row, dynamic=False)
+sarima_predicted_close = sarima_results.get_prediction(start=test_data.index[0], end=test_data.index[-1], dynamic=False)
 sarima_predicted_close_df = sarima_predicted_close.conf_int()
 sarima_predicted_close_df['yhat'] = (sarima_predicted_close_df['lower y'] + sarima_predicted_close_df['upper y']) / 2
 sarima_predicted_close_df['ds'] = test_data['ds']  # Add 'ds' column for plotting
 
-# Fit the SARIMA model using the train data
-sarima_results = train_sarima_model(train_data)
+# Combine the actual and predicted data
+combined_data = test_data.copy()
+combined_data['yhat'] = sarima_predicted_close_df['yhat']
 
-# Find the row numbers for the start and end dates
-start_row = test_data.index[0]
-end_row = test_data.index[-1]
+# Plot the actual and predicted data
+sarima_predicted_plot = combined_data.hvplot(x='ds', y=['y', 'yhat'], ylabel='Close Price', legend=True)
 
-# Make predictions using the test data
-sarima_predicted_close_df = predict_sarima(sarima_results, start_row, end_row)
+sarima_predicted_plot
 
-# Define the calculate_rmse function
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from matplotlib.ticker import MaxNLocator
-
-# Set the date format
-date_fmt = mdates.DateFormatter('%Y-%m-%d')
-
-
-# Plot SARIMA Predicted Close Prices
-plt.figure(figsize=(10, 6))
-plt.plot(sarima_predicted_close_df['ds'], sarima_predicted_close_df['yhat'], label='SARIMA Predicted Close Prices')
-plt.xlabel('Date')
-plt.ylabel('Close Price')
-plt.title('SARIMA Predicted Close Prices')
-plt.legend()
-plt.show()
-
-# Plot Actual vs. Predicted Close Prices
+# Calculate the RMSE for both models
 
 # Calculate the RMSE for both models
 prophet_predicted_close = prophet_forecast.iloc[-365:]['yhat']
@@ -162,13 +144,13 @@ sarima_rmse = sqrt(sarima_mse)
 print("Prophet RMSE:", prophet_rmse)
 print("SARIMA RMSE:", sarima_rmse)
 
-# Create a plot of actual vs. predicted close prices
-actual_vs_predicted = pd.DataFrame({'ds': actual_close.index, 'actual': actual_close.values, 
-                                     'prophet_predicted': prophet_predicted_close.values,
-                                     'sarima_predicted': sarima_predicted_close.values})
-actual_vs_predicted.set_index('ds', inplace=True)
+# Add the Prophet predictions to the combined_data DataFrame
+combined_data['prophet_yhat'] = prophet_forecast.iloc[-365:]['yhat'].values
 
-actual_vs_predicted.hvplot(title='Actual vs. Predicted Close Prices', xlabel='Date', ylabel='Price')
+# Plot the actual data and predictions from both models
+actual_vs_predicted_plot = combined_data.hvplot(x='ds', y=['y', 'yhat', 'prophet_yhat'], ylabel='Close Price', legend=True)
+
+actual_vs_predicted_plot
 
 # In[ ]:
 
