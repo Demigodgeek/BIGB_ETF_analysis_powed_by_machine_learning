@@ -6,20 +6,15 @@
 
 """
 
-The necessary modules are imported, which include pandas, numpy, Holoviews, KMeans and StandardScaler.
-
-Required data for BIGB, benchmark, and bank ETFs is imported from the data_plugin module.
-
-The find_bigb_cluster function is defined, which takes in all_assets_data, bigb_annual_return, bigb_annual_volatility, and n_clusters as inputs. The function preprocesses the all_assets_data by removing missing values, replacing infinite values with NaN, and filling NaN with column mean values. The function also standardizes the all_assets_data, fits the KMeans model, and assigns the cluster number to each asset in the dataset. The function adds BIGB's data point to the dataset and finds the cluster for BIGB using the KMeans model. The function returns the clustered asset data and BIGB's cluster label.
-
-The find_bigb_cluster function is called twice with benchmark_data and bank_etf_data as all_assets_data, and bigb_annual_return and bigb_annual_volatility as the other inputs. 
-
-**** The function returns two sets of variables, benchmark_data_clustered and bigb_benchmark_cluster, and bank_etf_data_clustered and bigb_bank_etf_cluster.****
-
-The plot_clusters function is defined, which takes in data, bigb_cluster, and title as inputs. The function creates a scatter plot of the data, with the colors representing the clusters. The function also adds a BIGB scatter point, BIGB text label, and customizes the plot by adding a title, legend, and axis labels.
-
-The plot_clusters function is called twice with benchmark_data_clustered and bigb_benchmark_cluster, and bank_etf_data_clustered and bigb_bank_etf_cluster, respectively. The function returns a Holoviews plot, which is saved as a PNG file in the "images" folder.
-
+The module imports various necessary Python modules such as pandas, numpy, sklearn.cluster, and holoviews. 
+It also imports data from the "data_plugin_for_julio" module.
+The main function of the module is "bigb_cluster()", which performs clustering on the benchmark and bank ETF data to find the appropriate cluster for the BIGB stock. 
+It first finds the optimal number of clusters for the benchmark and bank ETF data using the elbow method. 
+Then, it performs clustering on the benchmark and bank ETF data using the KMeans algorithm with the optimal number of clusters. 
+The function also calls the "plot_clusters()" function to visualize the clusters and save the plots as PNG images.
+The "optimal_clusters_elbow_method()" function finds the optimal number of clusters for a given dataset using the elbow method. 
+The "find_bigb_cluster()" function performs clustering on a given dataset using the KMeans algorithm with a specified number of clusters, 
+and finds the appropriate cluster for the BIGB stock using the annual return and annual volatility data.
 
 
 """
