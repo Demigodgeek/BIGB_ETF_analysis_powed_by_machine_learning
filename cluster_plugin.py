@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 
 from data_plugin_for_julio import get_bigb_data, get_benchmark_cluster_data, get_bank_etf_cluster_data
 
-bigb_df, bigb_trading_df, bigb_cluster_df = get_bigb_data()
+bigb_df = get_bigb_data()[0]
 bank_etf_cluster_df = get_bank_etf_cluster_data()
 benchmark_cluster_df = get_benchmark_cluster_data()
 
