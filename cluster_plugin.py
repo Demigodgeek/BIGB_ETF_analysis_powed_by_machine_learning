@@ -1,93 +1,164 @@
-#!/usr/bin/env python
+  #!/usr/bin/env python
 # coding: utf-8
 
-# cluster_plugin.py
+# In[161]:
 
 
-"""
-
-The module imports various necessary Python modules such as pandas, numpy, sklearn.cluster, and holoviews. 
-It also imports data from the "data_plugin_for_julio" module.
-The main function of the module is "bigb_cluster()", which performs clustering on the benchmark and bank ETF data to find the appropriate cluster for the BIGB stock. 
-It first finds the optimal number of clusters for the benchmark and bank ETF data using the elbow method. 
-Then, it performs clustering on the benchmark and bank ETF data using the KMeans algorithm with the optimal number of clusters. 
-The function also calls the "plot_clusters()" function to visualize the clusters and save the plots as PNG images.
-The "optimal_clusters_elbow_method()" function finds the optimal number of clusters for a given dataset using the elbow method. 
-The "find_bigb_cluster()" function performs clustering on a given dataset using the KMeans algorithm with a specified number of clusters, 
-and finds the appropriate cluster for the BIGB stock using the annual return and annual volatility data.
-
-
-"""
-
-
-# cluster_plugin.py
-
+get_ipython().run_line_magic('matplotlib', 'inline')
 import pandas as pd
 import numpy as np
-import holoviews as hv
+import hvplot.pandas
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 from data_plugin_for_julio import get_bigb_data, get_benchmark_cluster_data, get_bank_etf_cluster_data
 
-# Load the Holoviews Bokeh extension
-hv.extension('bokeh')
-
 bigb_df, bigb_trading_df, bigb_cluster_df = get_bigb_data()
 bank_etf_cluster_df = get_bank_etf_cluster_data()
 benchmark_cluster_df = get_benchmark_cluster_data()
 
-# Get BIGB annual return and annual volatility from bigb_cluster_df
-bigb_annual_return = bigb_cluster_df["bigb_annual_return"].iloc[0]
-bigb_annual_volatility = bigb_cluster_df["bigb_annual_volatility"].iloc[0]
 
-def bigb_cluster():
-    # Find the optimal number of clusters using the Elbow Method
-    benchmark_elbow = optimal_clusters_elbow_method(benchmark_cluster_df)
-    bank_etf_elbow = optimal_clusters_elbow_method(bank_etf_cluster_df)
+# # BIGB Only
 
-    # You can choose the optimal number of clusters visually from the elbow curve or use an algorithmic approach
-    optimal_clusters = 5
+# In[162]:
 
-    # Perform clustering and find the appropriate cluster for BIGB
-    benchmark_data_clustered, bigb_benchmark_cluster = find_bigb_cluster(benchmark_cluster_df, optimal_clusters)
-    bank_etf_data_clustered, bigb_bank_etf_cluster = find_bigb_cluster(bank_etf_cluster_df, optimal_clusters)
 
-    # Call the plot_clusters function and save the plots as PNG images
-    plot_cluster_bigb_benchmark = plot_clusters(benchmark_data_clustered, bigb_benchmark_cluster, "Benchmark Clusters", "images/benchmark_clusters.png")
-    plot_cluster_bigb_bank_etf = plot_clusters(bank_etf_data_clustered, bigb_bank_etf_cluster, "Bank ETF Clusters", "images/bank_etf_clusters.png")
+# Remove missing values, replace infinite values, and fill NaN with mean
+bigb_df = bigb_df.replace([np.inf, -np.inf], np.nan).fillna(bigb_df.mean())
 
-    return plot_cluster_bigb_benchmark, plot_cluster_bigb_bank_etf
+# Create a list of k values and calculate inertia for each k
+inertia = []
+k = list(range(1, 11))
+for i in k:
+    model = KMeans(n_clusters=i, random_state=0)
+    model.fit(bigb_df)
+    inertia.append(model.inertia_)
 
-# Find the optimal number of clusters using the Elbow Method
-def optimal_clusters_elbow_method(df, max_clusters=10):
-    scaler = StandardScaler()
-    df_scaled = scaler.fit_transform(df)
+# Create elbow plot
+bigb_elbow_data = {
+    'k': k,
+    'inertia': inertia
+}
+bigb_elbow_data_df = pd.DataFrame(bigb_elbow_data)
+bigb_elbow_plot = bigb_elbow_data_df.hvplot.line(
+    x='k',
+    y='inertia',
+    title='BIGB Elbow Curve',
+    xticks=k
+)
 
-    sum_of_squared_distances = []
-    for n_clusters in range(1, max_clusters + 1):
-        kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(df_scaled)
-        sum_of_squared_distances.append(kmeans.inertia_)
+print(bigb_elbow_data_df)
+print(inertia)
+bigb_elbow_plot = bigb_elbow_plot.opts(width=600, height=400, show_grid=True)
 
-    return sum_of_squared_distances
+# Save the elbow plot as a PNG file in the "images" directory
+file_path = 'images/bigb_elbow_plot.png'
+hvplot.save(bigb_elbow_plot, file_path, fmt='png')
+bigb_elbow_plot
 
-# Perform clustering and find the appropriate cluster for BIGB
-def find_bigb_cluster(df, n_clusters):
-    # Standardize the dataframe
-    scaler = StandardScaler()
-    df_scaled = scaler.fit_transform(df)
 
-    # Fit the KMeans model and find the optimal cluster number
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(df_scaled)
+# # Benchmark Cluster
 
-    # Assign the cluster number to each asset in the dataset
-    df["cluster"] = kmeans.labels_
+# In[163]:
 
-    # Add BIGB data point to the dataset (annual return and annual volatility)
-    bigb_point = pd.DataFrame({"annual_return": [bigb_annual_return], "annual_volatility": [bigb_annual_volatility]})
-    bigb_point_scaled = scaler.transform(bigb_point)
 
-    # Find the cluster for BIGB using the KMeans model
-    bigb_cluster = kmeans.predict(bigb_point_scaled)[0]
+# Concatenate BIGB and Benchmark DataFrames into a single DataFrame
+benchmark_cluster = pd.concat([bigb_cluster_df, benchmark_cluster_df])
 
-    return df, bigb_df
+# Preprocess the data
+benchmark_cluster = benchmark_cluster.replace([np.inf, -np.inf], np.nan).fillna(benchmark_cluster.mean())
+
+# Apply the KMeans algorithm to find clusters
+# Choose the optimal number of clusters 
+n_clusters = 2
+kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+benchmark_cluster['cluster'] = kmeans.fit_predict(benchmark_cluster[['annual_return', 'annual_volatility']])
+
+import hvplot.pandas
+
+# Create a dictionary to map cluster numbers to their labels
+cluster_labels = {
+    0: 'BIGB',
+    1: 'Benchmark'
+}
+
+# Map cluster numbers to their labels
+benchmark_cluster['cluster_label'] = benchmark_cluster['cluster'].map(cluster_labels)
+
+# Create a scatter plot using hvplot
+benchmark_scatter_plot = benchmark_cluster.hvplot.scatter(
+    x='annual_return',
+    y='annual_volatility',
+    by='cluster_label',
+    cmap='Category10',
+    legend='top_left',
+    title='Benchmark',
+    xlabel='Annual Return',
+    ylabel='Annual Volatility',
+    alpha=0.7,
+    size=100,
+    hover=True
+)
+file_path = 'images/benchmark_scatter_plot.png'
+hvplot.save(benchmark_scatter_plot, file_path, fmt='png')
+benchmark_scatter_plot.opts(width=800, height=500, show_grid=True)
+
+
+# # Bank ETF Cluster
+
+# In[164]:
+
+
+# Concatenate BIGB and Benchmark DataFrames into a single DataFrame
+bank_etf_cluster = pd.concat([bigb_cluster_df, bank_etf_cluster_df])
+
+# Preprocess the data
+bank_etf_cluster = bank_etf_cluster.replace([np.inf, -np.inf], np.nan).fillna(bank_etf_cluster.mean())
+
+# Apply the KMeans algorithm to find clusters
+# Choose the optimal number of clusters
+n_clusters = 2
+kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+bank_etf_cluster['cluster'] = kmeans.fit_predict(bank_etf_cluster[['annual_return', 'annual_volatility']])
+
+import hvplot.pandas
+
+# Create a dictionary to map cluster numbers to their labels
+cluster_labels = {
+    0: 'BIGB',
+    1: 'Bank_ETF'
+}
+
+# Map cluster numbers to their labels
+bank_etf_cluster['cluster_label'] = bank_etf_cluster['cluster'].map(cluster_labels)
+
+# Create a scatter plot using hvplot
+bank_etf_scatter_plot = bank_etf_cluster.hvplot.scatter(
+    x='annual_return',
+    y='annual_volatility',
+    by='cluster_label',
+    cmap='Category10',
+    legend='top_left',
+    title='Bank ETF',
+    xlabel='Annual Return',
+    ylabel='Annual Volatility',
+    alpha=0.7,
+    size=100,
+    hover=True
+)
+file_path = 'images/bank_etf_scatter_plot.png'
+hvplot.save(bank_etf_scatter_plot, file_path, fmt='png')
+bank_etf_scatter_plot.opts(width=800, height=500, show_grid=True)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
