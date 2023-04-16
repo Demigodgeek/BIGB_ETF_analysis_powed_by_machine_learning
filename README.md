@@ -77,35 +77,35 @@ The main branch of the repository has 2 foleders and 4 seperate files
 
 ### `main_jupyterlab` folder:
 There are 2 folders, 13 modules in the `main_jupyterlab` folder
-> `_main.ipynb`: Main code, run to get all plots or reports.
-> `csv` : Saved bigb's ohlcv data, which is a .csv file
-> `images`: saved plots for future analysis
-> `_preparation_data_plugin` : prepare data for cluster, trading algorithms and time series analysis using 
-> `_questionnaire_plugin` : get user input which are inisial capital and holding period
-> `_x_y_tune_widget_plugin` : here you can tune the window, examing period to find a better value.
-> `bigb_1_cluster_plugin` : cluster and plot to see where the bigb fall on the benchamark's pool and bank industry etf's pool.
-> `bigb_2_season_price_heatmap_plugin` : plot to see whether there is a seasanal pattern in price
-> `bigb_3_visualize_short_long_position_strategy_plugin` : plog to see the short/long position strategy
-> `bigb_4_1_svc_model_plugin` : apply SVC to bigb to generate the trading signal and predict.
-> `bigb_4_2_rf_model_plugin` : apply RANDOM FOREST to bigb to generate the trading signal and predict.
-> `bigb_4_3_knn_bestk_model_plugin` : apply KNN to bigb to generate the trading signal and predict.
-> `sp500_5_knn_bestk_model_plugin` : apply KNN to SP500 to generate the trading signal and predict.
-> `sp500_bigb_6_metric_plugin import bigb_sp500_metric_table` : compare the performance to that of benchmark
++ `_main.ipynb`: Main code, run to get all plots or reports.
++ `csv` : Saved bigb's ohlcv data, which is a .csv file
++ `images`: saved plots for future analysis
++ `_preparation_data_plugin` : prepare data for cluster, trading algorithms and time series analysis using 
++ `_questionnaire_plugin` : get user input which are inisial capital and holding period
++ `_x_y_tune_widget_plugin` : here you can tune the window, examing period to find a better value.
++ `bigb_1_cluster_plugin` : cluster and plot to see where the bigb fall on the benchamark's pool and bank industry etf's pool.
++ `bigb_2_season_price_heatmap_plugin` : plot to see whether there is a seasanal pattern in price
++ `bigb_3_visualize_short_long_position_strategy_plugin` : plog to see the short/long position strategy
++ `bigb_4_1_svc_model_plugin` : apply SVC to bigb to generate the trading signal and predict.
++ `bigb_4_2_rf_model_plugin` : apply RANDOM FOREST to bigb to generate the trading signal and predict.
++ `bigb_4_3_knn_bestk_model_plugin` : apply KNN to bigb to generate the trading signal and predict.
++ `sp500_5_knn_bestk_model_plugin` : apply KNN to SP500 to generate the trading signal and predict.
++ `sp500_bigb_6_metric_plugin import bigb_sp500_metric_table` : compare the performance to that of benchmark
 
 
 ### `streamlit_deployment` folder:
 There are 6 modules in the main_code
-> `_main.py`: Main code, run to prompt the streamlit interface
-> `_preparation_data_plugin` : prepare data for cluster, trading algorithms and time series analysis using 
-> `_x_y_tune_widget_plugin` : here you can tune the window, examing period to find a better value.
-> `bigb_1_cluster_plugin` : cluster and plot to see where the bigb fall on the benchamark's pool and bank industry etf's pool.
-> `bigb_2_season_price_heatmap_plugin` : plot to see whether there is a seasanal pattern in price
-> `bigb_3_visualize_short_long_position_strategy_plugin` : plog to see the short/long position strategy
-> `bigb_4_1_svc_model_plugin` : apply SVC to bigb to generate the trading signal and predict.
-> `bigb_4_2_rf_model_plugin` : apply RANDOM FOREST to bigb to generate the trading signal and predict.
-> `bigb_4_3_knn_bestk_model_plugin` : apply KNN to bigb to generate the trading signal and predict.
-> `sp500_5_knn_bestk_model_plugin` : apply KNN to SP500 to generate the trading signal and predict.
-> `sp500_bigb_6_metric_plugin import bigb_sp500_metric_table` : compare the performance to that of benchmark
++ `_main.py`: Main code, run to prompt the streamlit interface
++ `_preparation_data_plugin` : prepare data for cluster, trading algorithms and time series analysis using 
++ `_x_y_tune_widget_plugin` : here you can tune the window, examing period to find a better value.
++ `bigb_1_cluster_plugin` : cluster and plot to see where the bigb fall on the benchamark's pool and bank industry etf's pool.
++ `bigb_2_season_price_heatmap_plugin` : plot to see whether there is a seasanal pattern in price
++ `bigb_3_visualize_short_long_position_strategy_plugin` : plog to see the short/long position strategy
++ `bigb_4_1_svc_model_plugin` : apply SVC to bigb to generate the trading signal and predict.
++ `bigb_4_2_rf_model_plugin` : apply RANDOM FOREST to bigb to generate the trading signal and predict.
++ `bigb_4_3_knn_bestk_model_plugin` : apply KNN to bigb to generate the trading signal and predict.
++ `sp500_5_knn_bestk_model_plugin` : apply KNN to SP500 to generate the trading signal and predict.
++ `sp500_bigb_6_metric_plugin import bigb_sp500_metric_table` : compare the performance to that of benchmark
 
     
 ### Other Files:
