@@ -94,7 +94,7 @@ There are 2 folders, 13 modules in the `main_jupyterlab` folder
 
 
 ### `streamlit_deployment` folder:
-There are 6 modules in the main_code
+There are 11 modules in the main_code
 + `_main.py`: Main code, run to prompt the streamlit interface
 + `_preparation_data_plugin` : prepare data for cluster, trading algorithms and time series analysis using 
 + `_x_y_tune_widget_plugin` : here you can tune the window, examing period to find a better value.
