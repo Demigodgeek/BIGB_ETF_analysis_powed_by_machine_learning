@@ -1,4 +1,4 @@
-# Understanding BIGB ETF with Machine Learing
+# Understanding BIGB with Machine Learing
 
 ---
 
